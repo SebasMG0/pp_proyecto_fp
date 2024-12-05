@@ -1,17 +1,16 @@
 declare
 
-fun {Test Vars}
-    case Vars of H|T then
-        if H == "=" then nil
-        else H|{Test T} end
+proc {Test Vars}
+    case Vars of "=" then
+        {Browse 'h'}
+    else
+        {Browse 'else'}
     end
 end
 
 
+L= "x y z ="
 
-
-L= "x y = x*x"
 C = {String.tokens L & }
-
-K= {Test C}
-{Browse K}
+{Browse C}
+{Test C}
