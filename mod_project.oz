@@ -6,13 +6,13 @@ Funcs = {NewCell nil}
 proc {ProcString Pred}
     case Pred of [10 102 117 110]|T then
         Funcs:= @Funcs|{AddVars T}| {GetSimDef @LocalPred}
+        {Browse 'Función definida con sus variables y árbol:'}
         {Browse @Funcs}
     end
 end
 
 fun {GetSimDef Pred}
     case Pred of Op1|Sym|Op2 then
-        {Browse Op2}
         tree(l:{CleanOp Op1} c: {CleanOp Sym} r:{CleanOp {List.nth Op2 1}})
     else
         nil
@@ -51,7 +51,6 @@ fun {GetPar Pred}
     end
 end
 
-
 fun {AddVars Vars}
     case Vars of H|T then
         if H == "=" then LocalPred:=T nil
@@ -60,19 +59,28 @@ fun {AddVars Vars}
     end
 end
 
-
-fun {SplitInput Pred}
-    {String.tokens {List.nth {String.tokens Pred &
-    } 2} & }
+proc {SplitInput Pred}
+    case {String.tokens Pred &
+    } of N|D|E|F then
+        {ProcString {String.tokens D & }}
+        {Browse {String.tokens E & }}
+        % {ProcString {String.tokens E & }}
+    end
 end
+
+
+% fun {SplitInput Pred}
+%     {String.tokens {List.nth {String.tokens Pred &
+%     } 2} & }
+% end
 
 
 ExpA = "
 fun operation x y z = (x*(x+y)) + (z/y)
-operation 3 4
+operation 3 4 5
 " 
 
 
-% {Browse {SplitInput ExpA}}
-{ProcString {SplitInput ExpA}}
+{SplitInput ExpA}
+% {ProcString {SplitInput ExpA}}
 % {ProcString C}
