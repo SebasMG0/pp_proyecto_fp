@@ -21,7 +21,7 @@ end
 
 fun {GetSimDef Pred}
     case Pred of Op1|Sym|Op2 then
-        tree(l:{CleanOp Op1} c: {CleanOp Sym} r:{CleanOp {List.nth Op2 1}})
+        tree(l:{CleanOp Op1} c:{List.nth Sym 1} r:{CleanOp {List.nth Op2 1}})
     else
         nil
     end
@@ -29,11 +29,41 @@ end
 
 fun {CleanOp Pred}
     if {List.length Pred} == 1 then
-        Pred
+        [Pred]
     else 
         {GetPar Pred}
     end
 end
+
+% fun {GetPar Pred Var Op} 
+%     case Pred of H|T then
+%         if H == 40 then
+%             if Op == null then 
+%                 {GetPar T nil nil}
+%             else
+%                 tree(l:tree(l:Op r:{GetPar T nil nil}) r:Var)
+%             end
+
+%         elseif H == 41 then
+%             LocalPred:= T
+%             tree(l:Op r:Var)
+        
+%         elseif {List.member H [42 43 45 47]} then
+%             {GetPar T Var H}
+        
+%         elseif H == 13 then
+%             LocalPred:= T
+%             tree(l:Op r:Var)
+
+%         else
+%             if Var == nil then
+%                 {GetPar T H nil}
+%             else
+%                 {GetPar T tree(l:tree(l:Op r:H) r:Var) nil}
+%             end
+%         end
+%     end
+% end
 
 fun {GetPar Pred}
     case Pred of nil then nil
@@ -97,28 +127,41 @@ proc {RedExec Pred}
         if H == {GetFunName} then
             LocalPred:= {DefParams T {GetFunVars} 1 Vars}
             {Browse 'Variables definidas'}
-            {Browse {Dictionary.entries Vars}}     
+            {Browse {Dictionary.entries Vars}}
+
+            LocalPred:= {GetFunTree}
+            % LocalPred:= {Eval @LocalPred}
         end
     end
 end
 
-% proc {RedExec Pred}
-%     case Pred of nil then nil
-%     [] H|T then
-%         if H == {GetFunName} then
-%             {DefParams T {GetFunVars} 1 Vars}
-            
-%         end
+%----------------------------------------------------------------------
+% Al final me quedó mal la función para evaluar y no puede completarla
+%----------------------------------------------------------------------
+
+% fun {Eval Tree}
+%     case {String.is [Tree.l]} of H|T then
+        
+%     else
+%         {Eval Tree.l}
 %     end
 % end
 
-% fun {DefParams Pred LVars}
-%     i in 1..{List.length LVars}
-%         if {List.nth Pred i} == {GetFunName} then
-%             {DefParams }
-%         else end
-
-% end
+% fun {Eval Tree}
+%     case Tree of
+%        tree(l:L c:C r:R) then
+%           Op1 = {Eval L}
+%           Op2 = {Eval R}
+%           {Oper Op1 Op2 C}
+%     [] X then
+%           if {Number.is X} then
+%              X
+%           else
+%              {Dictionary.get Vars X}
+%           end
+%     end
+%  end
+ 
 
 fun {DefParams Pred LVars I D}
     case Pred of nil then nil
@@ -150,19 +193,13 @@ fun operation x y z = (x*(x+y)) - (z/y)
 operation 1 2 4
 " 
 
-ExpB= "
-fun square x = x * x
-square square 3
+ExpB="
+fun twice x y = x + x
+twice 5 7
 "
 
-ExpC="
-fun twice x = x + x
-twice 5
-"
-
-% {SplitInput ExpA}
+{SplitInput ExpA}
 % {SplitInput ExpB}
-{SplitInput ExpC}
 
 % {ProcString {SplitInput ExpA}}
 % {ProcString C}
